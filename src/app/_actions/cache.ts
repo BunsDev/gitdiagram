@@ -5,7 +5,15 @@ import { eq, and } from "drizzle-orm";
 import { diagramCache } from "~/server/db/schema";
 import { sql } from "drizzle-orm";
 
+const missingDbMessage =
+  "Database connection is not configured; cache operations are disabled.";
+
 export async function getCachedDiagram(username: string, repo: string) {
+  if (!db) {
+    console.warn(missingDbMessage);
+    return null;
+  }
+
   try {
     const cached = await db
       .select()
@@ -23,6 +31,11 @@ export async function getCachedDiagram(username: string, repo: string) {
 }
 
 export async function getCachedExplanation(username: string, repo: string) {
+  if (!db) {
+    console.warn(missingDbMessage);
+    return null;
+  }
+
   try {
     const cached = await db
       .select()
@@ -46,6 +59,11 @@ export async function cacheDiagramAndExplanation(
   explanation: string,
   usedOwnKey = false,
 ) {
+  if (!db) {
+    console.warn(missingDbMessage);
+    return;
+  }
+
   try {
     await db
       .insert(diagramCache)
@@ -71,6 +89,11 @@ export async function cacheDiagramAndExplanation(
 }
 
 export async function getDiagramStats() {
+  if (!db) {
+    console.warn(missingDbMessage);
+    return null;
+  }
+
   try {
     const stats = await db
       .select({
